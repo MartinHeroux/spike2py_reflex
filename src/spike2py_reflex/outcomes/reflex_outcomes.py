@@ -116,11 +116,7 @@ def _get_amplitude(reflex_waveform, idx1, idx2):
     max_idx = np.argmax(reflex_waveform[idx1:idx2])
     min_val = reflex_waveform[min_idx]
     max_val = reflex_waveform[max_idx]
-    # Acccount for poor reflex window selection and both values are negative
-    if max_val > 0:
-        amplitude = max_val - min_val
-    else:
-        amplitude = max_val + min_val
+    amplitude = max_val - min_val
     return amplitude
 
 
