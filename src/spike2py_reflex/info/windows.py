@@ -145,7 +145,7 @@ class GroupedWindows:
                         idx3_double = find_nearest_time_index(self.x_axes.double, (reflex_ms[0] + self.double_isi) * s2pr.utils.CONVERT_MS_TO_S)
                         idx4_double = find_nearest_time_index(self.x_axes.double, (reflex_ms[1] + self.double_isi) * s2pr.utils.CONVERT_MS_TO_S)
                     except TypeError:
-                        print('Unable to compute double idx windows because double_isi not added to GroupWindows')
+                        print('Unable to compute double idx windows because double_isi not added to GroupWindows\n')
                         idx3_double = None
                         idx4_double = None
 
