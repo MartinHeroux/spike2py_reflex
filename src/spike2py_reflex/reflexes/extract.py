@@ -159,12 +159,15 @@ def _get_extract_idx_doubles(info) -> list:
 
 def _get_double_reflexes(trigger_windows, stim_intensities, emg):
     reflexes = list()
+    stim_intensities_doubles_removed = list()
+    for i in range(0, len(stim_intensities), 2):
+        stim_intensities_doubles_removed.append(stim_intensities[i])
 
     for (
             (idx1_extract, idx2_extract),
             (idx1_reflex1, idx2_reflex1),
             (idx1_reflex2, idx2_reflex2),
-    ), (intensity) in zip(trigger_windows, stim_intensities):
+    ), (intensity) in zip(trigger_windows, stim_intensities_doubles_removed):
 
         reflex1 = s2pr.reflexes.Single(waveform=emg.values[idx1_reflex1:idx2_reflex1])
 
