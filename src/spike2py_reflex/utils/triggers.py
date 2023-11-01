@@ -51,7 +51,7 @@ class Triggers:
     def _remove_rejected_triggers(self, triggers: list, info) -> list:
         """Remove triggers flagged for removal.
 
-        `rejected_triggers_times` are extract from the section-specific JSON file.
+        `rejected_triggers_times` are extracted from the section-specific JSON file.
         If no triggers flagged for removal, `triggers` is returned unmodified.
 
         Parameters
@@ -73,7 +73,7 @@ class Triggers:
                 lower = original_triggers > lower_value
                 upper = original_triggers < upper_value
                 trigger_mask *= np.invert(lower * upper)  # Update mask based on current trigger times
-            triggers = original_triggers[trigger_mask]  # Use mask to retain only wanted triggers.
+            triggers = original_triggers[trigger_mask]    # Use mask to retain only wanted triggers.
         return triggers
 
     def _get_idx(self, info):
@@ -106,9 +106,10 @@ class Triggers:
             if not skip_one:
                 trig1 = self._triggers[i]
                 try:
-                    # Last trig can be single or part of double.
-                    # If part of double, can access triggers[i + 1] and the skip_one.
-                    # If not, last trig will be trig1 and triggers[i + 1] will through AssertionError.
+                    # Last trigger can be single or part of double.
+                    # If part of double, can access triggers[i + 1], set skip_one to True and then end.
+                    # If not, last trigger will be trig1 (of single) and triggers[i + 1] will give
+                    # AssertionError.
                     trig2 = self._triggers[i + 1]
                     isi = trig2 - trig1
                     try:
@@ -120,10 +121,13 @@ class Triggers:
                         double.append([double1, double2])
                         skip_one = True
                     except AssertionError:
+                        # ISI not compatible with double, thus must be a single.
                         extract.append(find_nearest_time_index(self._times, trig1))
                         double1 = find_nearest_time_index(self._times, trig1)
                         double.append([double1, None])
                 except IndexError:
+                    # Tried to access trigger after last available trigger.
+                    # Means last trigger is for a single.
                     extract.append(find_nearest_time_index(self._times, trig1))
                     double1 = find_nearest_time_index(self._times, trig1)
                     double.append([double1, None])
