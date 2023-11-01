@@ -18,6 +18,7 @@ class Single:
     background_sd: float = None
     stim_intensity: int = None
     extract_indexes: tuple = None
+    extract_times: tuple = None
 
 
 @dataclass
@@ -41,6 +42,7 @@ class Double:
     ratio: Union[dict, None] = None
     stim_intensity: int = None
     extract_indexes: tuple = None
+    extract_times: tuple = None
 
 
 @dataclass
