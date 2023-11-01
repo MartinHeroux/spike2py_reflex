@@ -16,7 +16,7 @@ def extract(info, data):
     s2pr.SectionReflexes, which contains the reflexes and supplementary details
     of the current setion.
     """
-    stim_int = s2pr.utils.get_stim_intensity(info, data)
+    stim_intensities = s2pr.utils.get_stim_intensity(info, data)
     extracted = dict()
 
     for emg_name in info.channels.emg:
@@ -26,11 +26,11 @@ def extract(info, data):
         info.windows.fs = emg.info.sampling_frequency
         if info.triggers.type in [s2pr.utils.SINGLE, s2pr.utils.TRAIN]:
             muscle_reflexes = _extract_single_reflexes(
-                emg_name, emg, stim_int, info
+                emg_name, emg, stim_intensities, info
             )
         elif info.triggers.type == s2pr.utils.DOUBLE:
             muscle_reflexes = _extract_double_reflexes(
-                emg_name, emg, stim_int, info
+                emg_name, emg, stim_intensities, info
             )
         extracted[emg_name] = muscle_reflexes
 
@@ -118,7 +118,7 @@ def _extract_double_reflexes(emg_name, emg, stim_intensities, info):
     """Extract reflexes from double stimulations"""
 
     trigger_windows = _get_extract_idx_doubles(info)
-    reflexes = _get_double_reflexes(trigger_windows, stim_intensities, emg)
+    reflexes = _get_double_reflexes(info, trigger_windows, stim_intensities, emg)
 
     muscle_reflexes = s2pr.reflexes.Doubles(
         x_axis_extract=info.windows.x_axes.double,
@@ -157,17 +157,14 @@ def _get_extract_idx_doubles(info) -> list:
     return extract_idxs
 
 
-def _get_double_reflexes(trigger_windows, stim_intensities, emg):
+def _get_double_reflexes(info, trigger_windows, stim_intensities, emg):
     reflexes = list()
-    stim_intensities_doubles_removed = list()
-    for i in range(0, len(stim_intensities), 2):
-        stim_intensities_doubles_removed.append(stim_intensities[i])
-
+    stim_intensities_second_pulse_doubles_removed = _remove_second_pulse(stim_intensities, info.triggers._triggers, info.windows.double_isi)
     for (
             (idx1_extract, idx2_extract),
             (idx1_reflex1, idx2_reflex1),
             (idx1_reflex2, idx2_reflex2),
-    ), (intensity) in zip(trigger_windows, stim_intensities_doubles_removed):
+    ), (intensity) in zip(trigger_windows, stim_intensities_second_pulse_doubles_removed):
 
         reflex1 = s2pr.reflexes.Single(waveform=emg.values[idx1_reflex1:idx2_reflex1])
 
@@ -175,16 +172,30 @@ def _get_double_reflexes(trigger_windows, stim_intensities, emg):
         if idx1_reflex2 is not None:
             reflex2 = s2pr.reflexes.Single(
                 waveform=emg.values[idx1_reflex2:idx2_reflex2])
-
         double = s2pr.reflexes.Double(
             waveform=emg.values[idx1_extract:idx2_extract],
             reflex1=reflex1,
             reflex2=reflex2,
             stim_intensity=intensity,
-            extract_indexes=(idx1_extract, idx2_extract),
+            extract_indexes=(emg.times[idx1_extract], emg.times[idx2_extract])
         )
-
         reflexes.append(double)
 
     return reflexes
 
+
+# TODO: Add test that ensures that when doubles given, only first stim intensity retained
+# TODO: Add test that ensures that when mix of singles and doubles, only first stim of double retained, plus all singles
+def _remove_second_pulse(stim_intensities, triggers, double_isi):
+    stim_intensities_second_pulse_doubles_removed = list()
+    for i, (trigger, intensity) in enumerate(zip(triggers, stim_intensities)):
+        if i == 0:
+            previous_trigger_time = trigger
+            stim_intensities_second_pulse_doubles_removed.append(intensity)
+        else:
+            current_trigger_time = trigger
+            isi = current_trigger_time - previous_trigger_time
+            if isi > (double_isi*s2pr.utils.CONVERT_MS_TO_S) * 1.05:
+                stim_intensities_second_pulse_doubles_removed.append(intensity)
+            previous_trigger_time = current_trigger_time
+    return stim_intensities_second_pulse_doubles_removed
