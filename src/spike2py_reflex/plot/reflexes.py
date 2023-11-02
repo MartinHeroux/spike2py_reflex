@@ -13,11 +13,11 @@ def reflexes(section):
     if section.reflexes[muscles[0]].type == s2pr.utils.SINGLE:
         s2pr.plot.plot_single(section)
         s2pr.plot.single_outcomes(section)
-    elif section.reflexes[muscles[0]].type == s2pr.utils.TRAIN:
-        s2pr.plot.plot_train(section)
-        s2pr.plot.train_outcomes(section)
     elif section.reflexes[muscles[0]].type == s2pr.utils.DOUBLE:
         s2pr.plot.plot_double(section)
         s2pr.plot.double_outcomes(section)
+    elif section.reflexes[muscles[0]].type == s2pr.utils.TRAIN:
+        s2pr.plot.plot_train(section)
+        s2pr.plot.train_outcomes(section)
 
 

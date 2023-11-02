@@ -195,7 +195,12 @@ def subplot(sp):
              alpha=sp.alpha)
     plt.ylabel(sp.y_axis_label)
     plt.title(f'{sp.muscle}-{sp.reflex_type}')
-    plt.xticks(ticks=sp.x_ticks)
+    if len(sp.x_ticks) < 8:
+        plt.xticks(ticks=sp.x_ticks)
+    elif len(sp.x_ticks) < 15:
+        plt.xticks(ticks=sp.x_ticks, fontsize=9)
+    else:
+        plt.xticks(ticks=sp.x_ticks, fontsize=6)
     plt.xlabel(sp.x_axis_label)
 
 

@@ -79,8 +79,8 @@ def overlay_reflexes(section, muscle, intensity, legend=True):
             if legend:
                 plt.plot(section.reflexes[muscle].x_axis_extract,
                          reflex.waveform,
-                         label=(f'{reflex.extract_indexes[0]:6.1f}-'
-                                f'{reflex.extract_indexes[1]:6.1f}'),
+                         label=(f'{reflex.extract_times[0]:6.1f}-'
+                                f'{reflex.extract_times[1]:6.1f}'),
                          alpha=0.8)
             else:
                 plt.plot(section.reflexes[muscle].x_axis_extract,
@@ -92,8 +92,8 @@ def overlay_reflexes(section, muscle, intensity, legend=True):
                 if legend:
                     plt.plot(section.reflexes[muscle].x_axis_extract,
                              reflex.waveform,
-                             label=(f'{reflex.extract_indexes[0]:6.1f}-'
-                                    f'{reflex.extract_indexes[1]:6.1f}'),
+                             label=(f'{reflex.extract_times[0]:6.1f}-'
+                                    f'{reflex.extract_times[1]:6.1f}'),
                              alpha=0.8)
                     count += 1
                 else:
@@ -107,7 +107,7 @@ def overlay_reflexes(section, muscle, intensity, legend=True):
             for _, value in section.reflexes[muscle].avg_waveform.items():
                 # If `single` processed, value will be a `Single` instance
                 # If `train` processed, value will be ndarray
-                if type(value) == numpy.ndarray:
+                if isinstance(value, numpy.ndarray):
                     plt.plot(section.reflexes[muscle].x_axis_extract,
                              value,
                              alpha=1,
@@ -125,13 +125,12 @@ def overlay_reflexes(section, muscle, intensity, legend=True):
         if section.reflexes[muscle].avg_waveform is not None:
             try:
                 avg_reflex = section.reflexes[muscle].avg_waveform[intensity]
-                if type(avg_reflex) == numpy.ndarray:
+                if isinstance(avg_reflex, numpy.ndarray):
                     plt.plot(section.reflexes[muscle].x_axis_extract,
                              avg_reflex,
                              alpha=1,
                              color='black',
                              linewidth=0.5)
-
                 else:
                     plt.plot(section.reflexes[muscle].x_axis_extract,
                              avg_reflex.waveform,

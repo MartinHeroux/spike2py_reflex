@@ -14,7 +14,6 @@ ONSET = 'onset'
 
 
 def summary(section):
-
     muscles = list(section.reflexes.keys())
     if section.reflexes[muscles[0]].type == s2pr.utils.SINGLE:
         _single_summary(section)
@@ -57,16 +56,15 @@ def _add_header( summary, line):
 def _add_single_reflex_outcomes(i, reflex, reflex_type, muscle, summary):
     if reflex.outcomes[reflex_type].onset is None:
         line = (f'{i:<5d}{muscle:<8s}{reflex_type:<10s}{reflex.stim_intensity:<8d}'
-                f'{reflex.extract_indexes[0]:<10.2f}{reflex.extract_indexes[1]:<10.2f}'
+                f'{reflex.extract_times[0]:<10.2f}{reflex.extract_times[1]:<10.2f}'
                 f'{reflex.outcomes[reflex_type].peak_to_peak:>8.4f}'
                 f'  {reflex.outcomes[reflex_type].area:>8.4f}')
     else:
         line = (f'{i:<5d}{muscle:<8s}{reflex_type:<10s}{reflex.stim_intensity:<8d}'
-                f'{reflex.extract_indexes[0]:<10.2f}{reflex.extract_indexes[1]:<10.2f}'
+                f'{reflex.extract_times[0]:<10.2f}{reflex.extract_times[1]:<10.2f}'
                 f'{reflex.outcomes[reflex_type].peak_to_peak:>8.4f}'
                 f'  {reflex.outcomes[reflex_type].area:>8.4f}'
                 f'  {reflex.outcomes[reflex_type].onset:>8.4f}')
-
     summary.append(line)
     return summary
 
@@ -157,12 +155,12 @@ def _add_double_reflex_outcomes(i, reflex, reflex_type, muscle, summary):
     try:
         if reflex.reflex1.outcomes[reflex_type].onset is None:
             line1 = (f'{i1:<5s}{muscle:<8s}{reflex_type:<10s}{reflex.stim_intensity:<8d}'
-                    f'{reflex.extract_indexes[0]:<10.2f}{reflex.extract_indexes[1]:<10.2f}'
+                    f'{reflex.extract_times[0]:<10.2f}{reflex.extract_times[1]:<10.2f}'
                     f'{reflex.reflex1.outcomes[reflex_type].peak_to_peak:>8.4f}'
                     f'  {reflex.reflex1.outcomes[reflex_type].area:>8.4f}')
         else:
             line1 = (f'{i1:<5s}{muscle:<8s}{reflex_type:<10s}{reflex.stim_intensity:<8d}'
-                    f'{reflex.extract_indexes[0]:<10.2f}{reflex.extract_indexes[1]:<10.2f}'
+                    f'{reflex.extract_times[0]:<10.2f}{reflex.extract_times[1]:<10.2f}'
                     f'{reflex.reflex1.outcomes[reflex_type].peak_to_peak:>8.4f}'
                     f'  {reflex.reflex1.outcomes[reflex_type].area:>8.4f}'
                     f'  {reflex.reflex1.outcomes[reflex_type].onset:>8.4f}')
@@ -301,7 +299,7 @@ def _train_summary(section):
 
 def _add_train_reflex_outcomes(i, reflex, reflex_type, muscle, summary):
     line = (f'{i:<5d}{muscle:<8s}{reflex_type:<10s}{reflex.stim_intensity:<8d}'
-            f'{reflex.extract_indexes[0]:<10.2f}{reflex.extract_indexes[1]:<10.2f}'
+            f'{reflex.extract_times[0]:<10.2f}{reflex.extract_times[1]:<10.2f}'
             f'{reflex.outcomes[reflex_type].peak_to_peak:>8.4f}'
             f'  {reflex.outcomes[reflex_type].area:>8.4f}')
     summary.append(line)

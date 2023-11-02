@@ -20,60 +20,54 @@ def calculate(section):
 def calculate_for_individual_reflexes(section):
     """Calculate outcomes for each reflex of each muscle"""
     for muscle, reflexes in section.reflexes.items():
+        section_name = section.info.section
         if reflexes.type in [s2pr.utils.SINGLE, s2pr.utils.TRAIN]:
-            section.reflexes[muscle] = _get_single_outcomes(reflexes, section.info.section)
+            section.reflexes[muscle] = _get_single_outcomes(reflexes, section_name)
         elif reflexes.type == s2pr.utils.DOUBLE:
-            section.reflexes[muscle] = _get_double_outcomes(reflexes, section.info.section)
+            section.reflexes[muscle] = _get_double_outcomes(reflexes, section_name)
     return section
 
 
 def _get_single_outcomes(reflexes, section_name):
-
     x_axis = reflexes.x_axis_extract
     sd_idx_all_stim_times = reflexes.sd_window_idx
     # Get idx windows of all reflexes types (e.g. H-reflex + mMax; or just mMax)
     reflex_win_idx_all = reflexes.reflex_windows_idx[section_name]
 
-
     for i in range(len(reflexes.reflexes)):
         waveform = reflexes.reflexes[i].waveform
         reflexes.reflexes[i].outcomes = dict()
-
         for reflex_type, reflex_idx_dict in reflex_win_idx_all.items():
             # Extract specific idx windows for current reflex type
             reflex_win_idx = reflex_idx_dict[reflexes.type]
             if reflexes.type == s2pr.utils.SINGLE:
                 sd_idx = sd_idx_all_stim_times[reflexes.type]
             else:
-                sd_idx = None
-
+                sd_idx = None  # train stimulation
             outcomes, background_sd = get_outcomes_from(waveform, reflex_win_idx, sd_idx, x_axis)
-
             reflexes.reflexes[i].background_sd = background_sd
             reflexes.reflexes[i].outcomes[reflex_type] = outcomes
-
     return reflexes
 
 
-def _get_double_outcomes(reflexes, section):
-
+def _get_double_outcomes(reflexes, section_name):
     x_axis = reflexes.x_axis_extract
-    sd_idx_all_stim_times = reflexes.sd_window_idx
-    reflex_win_idx_all = reflexes.reflex_windows_idx[section]
+    sd_idx_all = reflexes.sd_window_idx
+    reflex_win_idx_all = reflexes.reflex_windows_idx[section_name]
 
     for i in range(len(reflexes.reflexes)):
         reflexes.reflexes[i].reflex1.outcomes = dict()
         try:
             reflexes.reflexes[i].reflex2.outcomes = dict()
         except AttributeError:
-            print('\t\tLooking for reflex2 outcomes, but reflex2 not present.')
+            pass
         reflexes.reflexes[i].ratio = dict()
 
         waveform = reflexes.reflexes[i].waveform
 
         for reflex_type, reflex_idx_dict in reflex_win_idx_all.items():
             reflex_win_idx = reflex_idx_dict[reflexes.type]
-            sd_idx = sd_idx_all_stim_times[reflexes.type]
+            sd_idx = sd_idx_all[reflexes.type]
 
             # Reflex1
             reflex1_idx = reflex_win_idx[0]
@@ -111,14 +105,14 @@ def get_outcomes_from(waveform, reflex_idx, sd_win_idx, x_axis):
     return outcomes, background_sd
 
 
-def _get_amplitude(reflex_waveform, idx1, idx2):
-    min_idx = np.argmin(reflex_waveform[idx1:idx2])
-    max_idx = np.argmax(reflex_waveform[idx1:idx2])
-    min_val = reflex_waveform[min_idx]
-    max_val = reflex_waveform[max_idx]
+# TODO: Add test to make sure reflex amplitude calc works for various combinations (signal all positive, all negative, mix)
+def _get_amplitude(waveform, idx1, idx2):
+    min_val = np.min(waveform[idx1:idx2])
+    max_val = np.max(waveform[idx1:idx2])
     amplitude = max_val - min_val
     return amplitude
-    #TODO: Add test to make sure reflex amplitude calc works for various combinations (signal all positive, all negative, mix)
+
+
 def _get_area(waveform, idx1, idx2):
     reflex_waveform = np.abs(waveform[idx1:idx2] - np.mean(waveform[idx1:idx2]))
     return np.trapz(reflex_waveform)

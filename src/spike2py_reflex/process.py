@@ -77,7 +77,7 @@ def trial(
     section: sections that need to be extracted and processed in given trial
     study_path: absolute path to top-level study folder; required when processing a
                 single trial
-    plot: flag to determine whether or not to generate plots
+    plot: flag to determine whether to generate plots
     from_command_line: flag indentifying whether processing single trial (from command line
                        usually)
     """
