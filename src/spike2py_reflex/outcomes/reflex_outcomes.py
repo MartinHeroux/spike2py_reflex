@@ -24,7 +24,8 @@ def calculate_for_individual_reflexes(section):
         if reflexes.type in [s2pr.utils.SINGLE, s2pr.utils.TRAIN]:
             section.reflexes[muscle] = _get_single_outcomes(reflexes, section_name)
         elif reflexes.type == s2pr.utils.DOUBLE:
-            section.reflexes[muscle] = _get_double_outcomes(reflexes, section_name)
+            double_isi = section.info.windows.double_isi
+            section.reflexes[muscle] = _get_double_outcomes(reflexes, section_name, double_isi)
     return section
 
 
@@ -50,7 +51,7 @@ def _get_single_outcomes(reflexes, section_name):
     return reflexes
 
 
-def _get_double_outcomes(reflexes, section_name):
+def _get_double_outcomes(reflexes, section_name, double_isi):
     x_axis = reflexes.x_axis_extract
     sd_idx_all = reflexes.sd_window_idx
     reflex_win_idx_all = reflexes.reflex_windows_idx[section_name]
@@ -80,6 +81,8 @@ def _get_double_outcomes(reflexes, section_name):
                 if reflex_win_idx[1] is not None:
                     reflex2_idx = reflex_win_idx[1]
                     outcomes2, background_sd = get_outcomes_from(waveform, reflex2_idx, sd_idx, x_axis)
+                    if outcomes2.onset is not None:
+                        outcomes2.onset = outcomes2.onset - (double_isi*s2pr.utils.CONVERT_MS_TO_S)
                     reflexes.reflexes[i].reflex2.background_sd = background_sd
                     reflexes.reflexes[i].reflex2.outcomes[reflex_type] = outcomes2
                     if outcomes2.peak_to_peak is not None:
