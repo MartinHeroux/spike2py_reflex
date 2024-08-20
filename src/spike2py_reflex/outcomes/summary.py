@@ -29,6 +29,8 @@ def _single_summary(section):
     summary = _add_header(summary, line)
 
     muscles, _, intensities, _ = s2pr.plot.get_muscles_and_intensities(section)
+    if intensities[0] == 'no_intensity':
+        intensities = [0]
     section_name = section.info.section
     reflex_types = list(section.info.windows.ms_reflexes[muscles[0]][section_name].keys())
 
