@@ -135,10 +135,14 @@ def _get_single_mean(reflexes, stim_intensity, section_name):
         outcomes = s2pr.outcomes.Outcomes(peak_to_peak, area, onset)
         missing_outcomes = s2pr.outcomes.Outcomes(peak_to_peak_none, area_none, onset_none)
         present_outcomes = s2pr.outcomes.Outcomes(peak_to_peak_yes, area_yes, onset_yes)
-        reflexes.mean_outcomes[reflex_type][int(stim_intensity)] = {"outcomes": outcomes,
-                                                                    "missing_outcomes": missing_outcomes,
-                                                                    "present_outcomes": present_outcomes}
-
+        if stim_intensity is None:
+            reflexes.mean_outcomes[reflex_type][0] = {"outcomes": outcomes,
+                                                                        "missing_outcomes": missing_outcomes,
+                                                                        "present_outcomes": present_outcomes}
+        else:
+            reflexes.mean_outcomes[reflex_type][int(stim_intensity)] = {"outcomes": outcomes,
+                                                                        "missing_outcomes": missing_outcomes,
+                                                                        "present_outcomes": present_outcomes}
     return reflexes
 
 
