@@ -66,7 +66,7 @@ class Info:
         # Section
         self.section = None
         self.section_type = None
-        self.rejected_trig_windows: List[list] = None
+        self.rejected_trigger_windows: List[list] = None
         self.section_pkl = None
         self.triggers = None
 
@@ -191,7 +191,7 @@ class Info:
                 self.trials_sections.add_section()
 
             if "rejected_trigger_windows" in section_reflex_info:
-                self._section_rejected_trigger_windows = section_reflex_info[
+                self.rejected_trigger_windows = section_reflex_info[
                     "rejected_trigger_windows"
                 ]
 

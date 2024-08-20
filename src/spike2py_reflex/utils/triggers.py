@@ -66,10 +66,11 @@ class Triggers:
         -------
         List of trigger times.
         """
-        if info.rejected_trig_windows:
+        if info.rejected_trigger_windows:
             original_triggers = np.array(triggers)
+
             trigger_mask = np.bool_(np.ones(len(triggers)))  # Initial mask `True` for all triggers
-            for lower_value, upper_value in info.rejected_trig_windows:
+            for lower_value, upper_value in info.rejected_trigger_windows:
                 lower = original_triggers > lower_value
                 upper = original_triggers < upper_value
                 trigger_mask *= np.invert(lower * upper)  # Update mask based on current trigger times
