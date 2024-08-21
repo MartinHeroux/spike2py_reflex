@@ -1,3 +1,5 @@
+import warnings
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy
@@ -184,7 +186,9 @@ def add_reflex_windows(info, muscle):
                     axes.add_patch(rect)
                     legend_items.append(rect)
                     legend_items.append(reflex)
+        warnings.simplefilter('ignore')
         plt.legend(handles=legend_items, labels=legend_names, fontsize='x-small')
+        warnings.resetwarnings()
     except KeyError:
         print('key error')
 
