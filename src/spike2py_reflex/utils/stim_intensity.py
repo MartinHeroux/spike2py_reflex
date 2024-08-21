@@ -35,6 +35,7 @@ def _verify_doubles_at_same_intensities(info, intensities, double_isi):
         isi = current_trigger_time - previous_trigger_time
         if isi < (double_isi*s2pr.utils.CONVERT_MS_TO_S) * 1.05:
             if previous_trigger_intensity != current_trigger_intensity:
+                # Give warning of intensity is not the same
                 print('!' * 80,
                       f'\nIntensity of first and second trigger for double not equal.\n\n'
                       f'\t\tsubject: {info.subject}\n'
@@ -49,7 +50,9 @@ def _verify_doubles_at_same_intensities(info, intensities, double_isi):
                       f'to the subject trial json file under "rejected_trigger_windows"\n',
                       '!' * 80,
                       '\n')
-                sys.exit(1)
+                if abs(previous_trigger_intensity - current_trigger_intensity) > 1:
+                    # Stop the program if there difference between the two intensities is > 1
+                    sys.exit(1)
     return intensities
 
 
