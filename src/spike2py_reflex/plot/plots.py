@@ -40,7 +40,16 @@ def subject(subject_: str, study_path: Path):
                 s2pr.plot.outcomes(section)
 
     subject_path_reflexes = study_path / subject_ / "figures" / "reflexes"
-    s2pp.utils.merge_pdfs(subject_path_reflexes)
-
     subject_path_outcomes = study_path / subject_ / "figures" / "outcomes"
+
+    # Delete previously concatenated figure file if present
+    subject_path_reflexes_file = subject_path_reflexes / (subject_ + '.pdf')
+    if subject_path_reflexes_file.is_file():
+        subject_path_reflexes_file.unlink()
+
+    subject_path_outcomes_file = subject_path_reflexes / (subject_ + '.pdf')
+    if subject_path_outcomes_file.is_file():
+        subject_path_outcomes.unlink()
+
+    s2pp.utils.merge_pdfs(subject_path_reflexes)
     s2pp.utils.merge_pdfs(subject_path_outcomes)
