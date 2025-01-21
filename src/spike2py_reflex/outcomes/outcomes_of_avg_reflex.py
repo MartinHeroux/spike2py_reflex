@@ -106,8 +106,11 @@ def _get_single_avg(reflexes, stim_intensity, section_name):
 
 def _double_calculate_avg(reflexes, stim_intensities, info):
     reflexes.avg_waveform = dict()
+    reflexes.avg_waveform_for_doubles = dict()
+
     reflexes.avg_reflex1 = dict()
     reflexes.avg_reflex1_for_doubles = dict()
+
     reflexes.avg_reflex2 = dict()
 
     if _no_stim_intensities(stim_intensities):
