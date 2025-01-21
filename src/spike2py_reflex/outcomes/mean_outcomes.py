@@ -11,6 +11,16 @@ def calculate_mean_outcomes(section):
     intensities, the output is grouped by stim intensity. That is, the mean value
     is computed for all reflexes at a given intensity.
 
+    Example
+    -------
+    For a given intensity, there are 3 Singles.
+    Outcomes such as peak-to-peak have been calculated for each Single, thus we have 3 peak-to-peak values.
+    Here, we calculate the mean outcome, which is the average of the 3 peak-to-peak values.
+
+    For Doubles and ratios, each pair of reflexes (reflex 1 and reflex 2) have had their ratio computed.
+    For example, lets assume we have 5 Doubles, and we computed the ratio for each Double.
+    The mean ratio is the average of the 5 ratios computed for each of the 5 Doubles.
+
     Returns
     -------
     For single:

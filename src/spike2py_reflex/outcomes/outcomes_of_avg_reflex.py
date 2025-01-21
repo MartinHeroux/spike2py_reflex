@@ -107,6 +107,7 @@ def _get_single_avg(reflexes, stim_intensity, section_name):
 def _double_calculate_avg(reflexes, stim_intensities, info):
     reflexes.avg_waveform = dict()
     reflexes.avg_reflex1 = dict()
+    reflexes.avg_reflex1_for_doubles = dict()
     reflexes.avg_reflex2 = dict()
 
     if _no_stim_intensities(stim_intensities):
@@ -120,12 +121,25 @@ def _double_calculate_avg(reflexes, stim_intensities, info):
 def _get_double_avg(reflexes, stim_intensity, info):
 
     # Get average waveform
-    avg_reflex_waveform = list()
+    avg_reflex_waveform = list()  # avg of all waveforms (regardless if mix of Single and Double)
+    avg_reflex_waveform_for_doubles = list()  # avg of all waveforms, but excluding those that were a Single
     for reflex in reflexes.reflexes:
         if (reflex.stim_intensity == stim_intensity) or (stim_intensity is None):
             avg_reflex_waveform.append(reflex.waveform)
+            if reflex.reflex2 is not None:
+                # Do not include instances of Singles when computing avg waveform for Doubles
+                avg_reflex_waveform_for_doubles.append(reflex.waveform)
+
     avg_reflex_waveform = np.array(avg_reflex_waveform).mean(axis=0)
+    avg_reflex_waveform_for_doubles = np.array(avg_reflex_waveform_for_doubles).mean(axis=0)
+
+    # avg_waveform and avg_waveform_for_doubles are the same if all reflexes were Double
+    # If there was a mix of Single and Double:
+    #    avg_waveform_for_doubles will be the avg of the waveforms where there was both a reflex 1 and reflex 2
+    #    avg_waveform will the avg of all the waveforms; here, the window where reflex 2 is incorrect as it
+    #    represents the avg of one or more true reflex 2 and background noise (in the case of Single).
     reflexes.avg_waveform[stim_intensity] = avg_reflex_waveform
+    reflexes.avg_waveform_for_doubles[stim_intensity] = avg_reflex_waveform_for_doubles
 
     # Get values needed to compute outcomes
     x_axis = reflexes.x_axis_extract
@@ -136,16 +150,22 @@ def _get_double_avg(reflexes, stim_intensity, info):
 
     # Compute outcomes for reflex(es)
     all_outcomes_reflex1 = dict()
+    all_outcomes_reflex1_for_doubles = dict()
     all_outcomes_reflex2 = dict()
 
     for reflex_type, reflex_idx_dict in reflex_win_idx_all.items():
         reflex_win_idx = reflex_idx_dict[reflexes.type]
         sd_idx = sd_idx_all_stim_times[reflexes.type]
+        # compute outcomes for reflex1 when avg waveform includes all reflexes (i.e. Single and Double)
         outcomes_reflex1, background_sd = s2pr.outcomes.get_outcomes_from(avg_reflex_waveform, reflex_win_idx[0], sd_idx, x_axis)
         all_outcomes_reflex1[reflex_type] = outcomes_reflex1
 
+        # compute outcomes for reflex1 when avg waveform only includes all the Double
+        outcomes_reflex1_for_doubles, background_sd_for_doubles = s2pr.outcomes.get_outcomes_from(avg_reflex_waveform_for_doubles, reflex_win_idx[0], sd_idx, x_axis)
+        all_outcomes_reflex1_for_doubles[reflex_type] = outcomes_reflex1_for_doubles
+
         if reflex_win_idx[1] is not None:
-            outcomes_reflex2, _ = s2pr.outcomes.get_outcomes_from(avg_reflex_waveform, reflex_win_idx[1], sd_idx, x_axis)
+            outcomes_reflex2, _ = s2pr.outcomes.get_outcomes_from(avg_reflex_waveform_for_doubles, reflex_win_idx[1], sd_idx, x_axis)
             all_outcomes_reflex2[reflex_type] = outcomes_reflex2
 
     if stim_intensity is None:
@@ -166,10 +186,14 @@ def _get_double_avg(reflexes, stim_intensity, info):
                                                         outcomes=all_outcomes_reflex1,
                                                         background_sd=background_sd)
 
+    reflexes.avg_reflex1_for_doubles[stim_intensity] = s2pr.reflexes.Single(waveform=avg_reflex_waveform_for_doubles[lower_idx1: upper_idx1],
+                                                                outcomes=all_outcomes_reflex1_for_doubles,
+                                                                background_sd=background_sd_for_doubles)
+
     try:
-        reflexes.avg_reflex2[stim_intensity] = s2pr.reflexes.Single(waveform=avg_reflex_waveform[lower_idx2: upper_idx2],
+        reflexes.avg_reflex2[stim_intensity] = s2pr.reflexes.Single(waveform=avg_reflex_waveform_for_doubles[lower_idx2: upper_idx2],
                                                            outcomes=all_outcomes_reflex2,
-                                                           background_sd=background_sd)
+                                                           background_sd=background_sd_for_doubles)
     except AttributeError:
         pass
     return reflexes

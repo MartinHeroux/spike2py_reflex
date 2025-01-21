@@ -51,8 +51,10 @@ class Doubles:
     x_axis_singles: np.array = None
     reflexes: list[Double] = None
     avg_reflex1: Single = None
+    avg_reflex1_for_doubles: Single = None
     avg_reflex2: Single = None
     avg_waveform = None
+    avg_waveform_for_doubles = None
     mean_outcomes_reflex1: Union[list, None] = None
     mean_outcomes_reflex2: Union[list, None] = None
     mean_ratio: float = None
