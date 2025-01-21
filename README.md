@@ -8,3 +8,12 @@
 * determine if code runs when unneeded details (e.g. train windows in a study without trains) not included in json
 
 * create script that will allow users to generate various json files based on an interactive shell prompt and answer system.
+
+
+# To write to PyPi
+
+pip install build
+pip install twine
+
+python -m build
+twine upload dist/*
