@@ -164,12 +164,16 @@ def _get_double_avg(reflexes, stim_intensity, info):
         all_outcomes_reflex1[reflex_type] = outcomes_reflex1
 
         # compute outcomes for reflex1 when avg waveform only includes all the Double
-        outcomes_reflex1_for_doubles, background_sd_for_doubles = s2pr.outcomes.get_outcomes_from(avg_reflex_waveform_for_doubles, reflex_win_idx[0], sd_idx, x_axis)
-        all_outcomes_reflex1_for_doubles[reflex_type] = outcomes_reflex1_for_doubles
-
-        if reflex_win_idx[1] is not None:
-            outcomes_reflex2, _ = s2pr.outcomes.get_outcomes_from(avg_reflex_waveform_for_doubles, reflex_win_idx[1], sd_idx, x_axis)
-            all_outcomes_reflex2[reflex_type] = outcomes_reflex2
+        if len(avg_reflex_waveform_for_doubles) != 0:
+            outcomes_reflex1_for_doubles, background_sd_for_doubles = s2pr.outcomes.get_outcomes_from(avg_reflex_waveform_for_doubles, reflex_win_idx[0], sd_idx, x_axis)
+            all_outcomes_reflex1_for_doubles[reflex_type] = outcomes_reflex1_for_doubles
+            if reflex_win_idx[1] is not None:
+                outcomes_reflex2, _ = s2pr.outcomes.get_outcomes_from(avg_reflex_waveform_for_doubles,
+                                                                      reflex_win_idx[1], sd_idx, x_axis)
+                all_outcomes_reflex2[reflex_type] = outcomes_reflex2
+        else:
+            all_outcomes_reflex1_for_doubles[reflex_type] = None
+            all_outcomes_reflex2[reflex_type] = None
 
     if stim_intensity is None:
         stim_intensity = 'no_intensity'
@@ -189,14 +193,18 @@ def _get_double_avg(reflexes, stim_intensity, info):
                                                         outcomes=all_outcomes_reflex1,
                                                         background_sd=background_sd)
 
-    reflexes.avg_reflex1_for_doubles[stim_intensity] = s2pr.reflexes.Single(waveform=avg_reflex_waveform_for_doubles[lower_idx1: upper_idx1],
-                                                                outcomes=all_outcomes_reflex1_for_doubles,
-                                                                background_sd=background_sd_for_doubles)
+    if len(avg_reflex_waveform_for_doubles) != 0:
+        reflexes.avg_reflex1_for_doubles[stim_intensity] = s2pr.reflexes.Single(waveform=avg_reflex_waveform_for_doubles[lower_idx1: upper_idx1],
+                                                                    outcomes=all_outcomes_reflex1_for_doubles,
+                                                                    background_sd=background_sd_for_doubles)
 
-    try:
-        reflexes.avg_reflex2[stim_intensity] = s2pr.reflexes.Single(waveform=avg_reflex_waveform_for_doubles[lower_idx2: upper_idx2],
-                                                           outcomes=all_outcomes_reflex2,
-                                                           background_sd=background_sd_for_doubles)
-    except AttributeError:
-        pass
+        try:
+            reflexes.avg_reflex2[stim_intensity] = s2pr.reflexes.Single(waveform=avg_reflex_waveform_for_doubles[lower_idx2: upper_idx2],
+                                                               outcomes=all_outcomes_reflex2,
+                                                               background_sd=background_sd_for_doubles)
+        except AttributeError:
+            pass
+    else:
+        reflexes.avg_reflex1_for_doubles[stim_intensity] = None
+        reflexes.avg_reflex2[stim_intensity] = None
     return reflexes
